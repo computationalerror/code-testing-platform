@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/HomePage.vue';
-import LoginPage from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/LoginPage.vue';
-import RegisterPage from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/RegisterPage.vue';
-import ForgotPassword from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/ForgotPassword.vue';
-import PreferencePage from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/PreferencePage.vue';
-import LandingPage from 'C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/components/LandingPage.vue';
+import HomePage from '@/components/HomePage.vue';
+import LoginPage from '@/components/LoginPage.vue';
+import RegisterPage from '@/components/RegisterPage.vue';
+import ForgotPassword from '@/components/ForgotPassword.vue';
+import PreferencePage from '@/components/PreferencePage.vue';
+import LandingPage from '@/components/LandingPage.vue';
 
 const routes = [{
         path: '/',
@@ -35,7 +35,7 @@ const routes = [{
         path: '/LandingPage',
         name: 'LandingPage',
         component: LandingPage,
-    }
+    },
 ];
 
 const router = createRouter({

@@ -68,7 +68,7 @@
                           background: linear-gradient(135deg, #3d6244 0%, #e7e6ca 100%);   
                           color: white;   
                           font-family: Arial, sans-serif;   
-                          background-image: url("C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/assets/bg.png");   
+                          background-image: url("@/assets/bg.png");   
                           background-size: cover;    
                           background-position: center;   
                           background-repeat: no-repeat; 

@@ -14,7 +14,7 @@
         <div v-if="showDropdown" class="dropdown">
           <ul>
             <li @click="selectOption('Profile Update')">Profile Update</li>
-            <li @click="selectOption('Change Password')">Change Password</li>
+            <li @click="showChangePasswordForm = true">Change Password</li>
             <li @click="selectOption('Settings')">Settings</li>
             <li @click="selectOption('Help')">Help</li>
             <li @click="selectOption('Logout')">Logout</li>
@@ -69,9 +69,14 @@
 <script>
 import userImage from '@/assets/user1.png';
 import axios from '@/axios';
+import { useRouter } from 'vue-router'; 
 
 export default {
   name: "LandingPage",
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   data() {
     return {
       showDropdown: false,
@@ -96,6 +101,9 @@ export default {
     },
     selectOption(option) {
       console.log(option + " selected");
+      if (option === 'Logout') {
+        this.handleLogout();
+      }
       this.showDropdown = false;
     },
     togglePreferencesDropdown() {
@@ -104,7 +112,7 @@ export default {
     async fetchPreferences() {
       console.log('Fetching preferences for email:', this.userEmail);
       if (!this.userEmail) {
-        console.error('User email not found in localStorage');
+        console.error('User  email not found in localStorage');
         return;
       }
       try {
@@ -127,7 +135,7 @@ export default {
     },
     async updatePreference(key, value) {
       console.log(`Updating preference: ${key} = ${value}`);
-      if (!this.userEmail) {
+ if (!this.userEmail) {
         console.error('User email not found');
         return;
       }
@@ -147,6 +155,29 @@ export default {
         console.error('Error updating preference:', error);
       }
     },
+    async handleLogout() {
+      try {
+        // Call backend logout endpoint if needed
+        await axios.post('http://127.0.0.1:5000/logout');
+        
+        // Clear all relevant items from localStorage
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('preferredLanguage');
+        localStorage.removeItem('experienceLevel');
+        localStorage.removeItem('token'); // If you're using authentication tokens
+        
+        // Close the dropdown
+        this.showDropdown = false;
+        
+        // Redirect to home page
+        this.router.push('/');
+      } catch (error) {
+        console.error('Error during logout:', error);
+        // Even if the backend call fails, we should still clear local storage and redirect
+        localStorage.clear();
+        this.router.push('/');
+      }
+    },
   },
 };
 </script>
@@ -159,7 +190,7 @@ export default {
   width: 100vw;
   height: 100vh;
   overflow: auto;
-  background-image: url("C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/assets/bg.png");
+  background-image: url("@/assets/bg.png");
   background-size: cover; 
   background-position: center;
   background-repeat: no-repeat;
@@ -290,7 +321,7 @@ export default {
   padding: 0;
 }
 
-.dropdown li, .preferences-dropdown li {
+.dropdown li , .preferences-dropdown li {
   padding: 10px;
   cursor: pointer;
   color: #072e0b;

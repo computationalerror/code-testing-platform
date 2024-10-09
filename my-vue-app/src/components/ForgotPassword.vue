@@ -115,7 +115,7 @@ export default {
   height: 100vh;
   color: white;
   font-family: Arial, sans-serif;
-  background-image: url("C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/assets/bg.png");
+  background-image: url("@/assets/bg.png");
   background-size: cover; 
   background-position: center;
   background-repeat: no-repeat;

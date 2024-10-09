@@ -52,7 +52,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('C:/Users/Asus/OneDrive/Documents/GitHub/code-testing-platform/test_platform/my-vue-app/src/assets/dCKhFWzHyfwhoxntrgf7--3--v72ql.jpg');  
+  background-image: url('@/assets/dCKhFWzHyfwhoxntrgf7--3--v72ql.jpg');  
   background-size: cover;
   background-position: center;
   opacity: 0.6;  
