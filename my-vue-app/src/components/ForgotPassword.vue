@@ -56,7 +56,7 @@ export default {
       }
     },
     async sendVerificationCode() {
-      const response = await axios.post('http://127.0.0.1:5000/send-verification-code', { email: this.email });
+      const response = await axios.post('/send-verification-code', { email: this.email });
       if (response.data.success) {
         this.showMessage(response.data.message);
         this.step = 2;
@@ -65,7 +65,7 @@ export default {
       }
     },
     async verifyCode() {
-      const response = await axios.post('http://127.0.0.1:5000/verify-code', { 
+      const response = await axios.post('/verify-code', { 
         email: this.email, 
         verificationCode: this.verificationCode 
       });
@@ -81,7 +81,7 @@ export default {
         this.showError('Passwords do not match');
         return;
       }
-      const response = await axios.post('http://127.0.0.1:5000/reset-password', {
+      const response = await axios.post('/reset-password', {
         email: this.email,
         verificationCode: this.verificationCode,
         newPassword: this.newPassword

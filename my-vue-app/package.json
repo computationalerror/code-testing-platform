@@ -11,7 +11,9 @@
         "axios": "^1.7.7",
         "chart.js": "^4.4.4",
         "core-js": "^3.8.3",
+        "jsonwebtoken": "^9.0.2",
         "jwt-decode": "^4.0.0",
+        "monaco-editor": "^0.52.0",
         "vue": "^3.2.13",
         "vue-chartjs": "^5.3.1",
         "vue-router": "^4.4.5"
@@ -24,6 +26,7 @@
         "@vue/cli-service": "~5.0.0",
         "eslint": "^7.32.0",
         "eslint-plugin-vue": "^8.0.3",
+        "monaco-editor-webpack-plugin": "^7.1.0",
         "unplugin-vue-define-options": "^1.5.1"
     },
     "eslintConfig": {

@@ -47,7 +47,7 @@ export default {
 
       try {
         // Send registration request to backend
-        const response = await axios.post('http://127.0.0.1:5000/RegisterPage', {
+        const response = await axios.post('/RegisterPage', {
           full_name: this.fullName,
           email: this.email,
           password: this.password,

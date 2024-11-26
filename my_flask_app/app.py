@@ -7,6 +7,22 @@ from flask_mail import Mail, Message
 import random
 import string
 import traceback
+import logging
+import subprocess
+import sys
+import time
+import os
+from shutil import which
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('app.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -26,7 +42,67 @@ def get_db_connection():
     )
     return connection
 
-
+def check_ollama_installation():
+    """Check if Ollama is properly installed and running"""
+    try:
+        # First, check if Ollama is installed
+        if sys.platform == "win32":
+            ollama_path = "ollama.exe"
+        else:
+            ollama_path = "ollama"
+            
+        # Try to find ollama in PATH
+        from shutil import which
+        ollama_executable = which(ollama_path)
+        if not ollama_executable:
+            return False, "Ollama executable not found in PATH"
+            
+        # Try to start Ollama service if not running
+        if sys.platform == "win32":
+            start_process = subprocess.run(
+                ["ollama", "serve"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+        else:
+            # For Unix-like systems, check if ollama service is running
+            ps_process = subprocess.run(
+                ["ps", "-ef", "|", "grep", "ollama"],
+                capture_output=True,
+                text=True,
+                shell=True
+            )
+            if "ollama serve" not in ps_process.stdout:
+                start_process = subprocess.run(
+                    ["ollama", "serve", "&"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    shell=True
+                )
+        
+        # Wait for service to start
+        time.sleep(2)
+        
+        # Check version to verify it's running
+        version_process = subprocess.run(
+            ["ollama", "version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        if version_process.returncode != 0:
+            return False, f"Ollama service check failed: {version_process.stderr}"
+            
+        return True, "Ollama is running properly"
+        
+    except subprocess.TimeoutExpired:
+        return False, "Timeout while checking Ollama service"
+    except Exception as e:
+        return False, f"Error checking Ollama: {str(e)}"
+    
 # Store verification codes (in a real application, use a more secure method)
 verification_codes = {}
 @app.route('/')
@@ -251,5 +327,114 @@ def logout():
     except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+@app.route('/generate-questions', methods=['POST'])
+def generate_questions():
+    try:
+        # Log incoming request
+        logger.debug(f"Received request with data: {request.data}")
+        
+        # Validate request data
+        data = request.json
+        if not data:
+            logger.error("No data provided in request")
+            return jsonify({"error": "No data provided"}), 400
+        
+        topic = data.get('topic')
+        difficulty = data.get('difficulty', 'basic')
+        
+        if not topic:
+            logger.error("No topic provided in request")
+            return jsonify({"error": "Topic is required"}), 400
+        
+        # Generate the prompt
+        prompt = f"Generate 3 {difficulty} level programming questions about {topic}. Format each question on a new line."
+        logger.debug(f"Generated prompt: {prompt}")
+        
+        # Check if ollama is installed and running
+        try:
+            version_process = subprocess.run(
+                ["ollama", "version"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            logger.debug(f"Ollama version check output: {version_process.stdout}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Ollama not properly installed: {str(e)}")
+            return jsonify({"error": "Ollama is not properly installed"}), 500
+        except FileNotFoundError:
+            logger.error("Ollama command not found")
+            return jsonify({"error": "Ollama is not installed"}), 500
+        
+        # Interact with Ollama
+        try:
+            # Start the Ollama process
+            process = subprocess.Popen(
+                ["ollama", "run", "llama3.2:1b"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            
+            # Set timeout for the entire process
+            stdout, stderr = process.communicate(input=prompt, timeout=30)
+            
+            # Log the raw output
+            logger.debug(f"Raw stdout: {stdout}")
+            logger.debug(f"Raw stderr: {stderr}")
+            
+            # Check for errors in stderr
+            if stderr:
+                logger.error(f"Ollama error output: {stderr}")
+                return jsonify({"error": f"Model error: {stderr}"}), 500
+            
+            # Process the output
+            questions = [
+                q.strip() for q in stdout.strip().split('\n') 
+                if q.strip() and len(q.strip()) > 10  # Basic validation of questions
+            ]
+            
+            # Validate questions
+            if not questions:
+                logger.error("No valid questions generated")
+                return jsonify({"error": "No valid questions generated"}), 500
+            
+            # Limit to 3 questions and format them
+            final_questions = questions[:3]
+            logger.debug(f"Generated questions: {final_questions}")
+            
+            return jsonify({
+                "questions": final_questions,
+                "count": len(final_questions)
+            }), 200
+            
+        except subprocess.TimeoutExpired as e:
+            logger.error(f"Process timeout: {str(e)}")
+            return jsonify({"error": "Question generation timed out"}), 504
+            
+        except Exception as e:
+            logger.error(f"Error during Ollama interaction: {str(e)}")
+            return jsonify({"error": f"Model error: {str(e)}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Server error: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+# Add a health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    try:
+        # Check if Ollama is responsive
+        subprocess.run(["ollama", "version"], capture_output=True, timeout=5)
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    try:
+        subprocess.run(["ollama", "pull", "llama3.2:1b"], check=True)
+        logger.info("Successfully pulled Ollama model")
+        app.run(debug=True)
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}")

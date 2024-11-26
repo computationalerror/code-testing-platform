@@ -5,6 +5,9 @@ import RegisterPage from '@/components/RegisterPage.vue';
 import ForgotPassword from '@/components/ForgotPassword.vue';
 import PreferencePage from '@/components/PreferencePage.vue';
 import LandingPage from '@/components/LandingPage.vue';
+import TopicPage from '@/components/TopicPage.vue';
+import SampleOne from "@/components/SampleOne.vue";
+
 
 const routes = [{
         path: '/',
@@ -35,6 +38,23 @@ const routes = [{
         path: '/LandingPage',
         name: 'LandingPage',
         component: LandingPage,
+    },
+    {
+        path: '/TopicPage',
+        name: 'TopicPage',
+        component: TopicPage,
+    },
+    {
+        path: '/SampleOne',
+        name: 'SampleOne',
+        component: SampleOne,
+    },
+    {
+        // Add a dynamic parameter ':topic' to pass the selected topic
+        path: '/SampleOne/:topic',
+        name: 'SampleOne',
+        component: SampleOne,
+        props: true, // Pass the route parameter as a prop to the component
     },
 ];
 

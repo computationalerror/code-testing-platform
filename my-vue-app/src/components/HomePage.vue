@@ -23,7 +23,7 @@ export default {
   async created() {
     try {
       // Fetch the welcome message from the Flask backend
-      const response = await axios.get('http://127.0.0.1:5000/HomePage');
+      const response = await axios.get('/HomePage');
       this.message = response.data.message;  // Update the message with the data from Flask
     } catch (error) {
       console.error('Error fetching data:', error);

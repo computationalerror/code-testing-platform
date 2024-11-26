@@ -59,7 +59,7 @@ export default {
     async savePreferences() {
       console.log('User email before saving preferences:', this.userEmail);
       try {
-        const response = await axios.post('http://127.0.0.1:5000/save_preferences', {
+        const response = await axios.post('/save_preferences', {
           email: this.userEmail,
           preferredLanguage: this.preferredLanguage,
           experienceLevel: this.experienceLevel,
