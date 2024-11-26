@@ -8,7 +8,7 @@
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
       <button @click="retryFetch" class="retry-button" :disabled="retryInProgress">
-        {{ retryInProgress ? Retrying (${remainingRetries} attempts left)... : 'Retry' }}
+        {{ retryInProgress ? `Retrying (${remainingRetries} attempts left)...` : 'Retry' }}
       </button>
     </div>
     <ul v-else-if="questions.length" class="questions-list">
@@ -67,280 +67,280 @@ const MAX_RETRY_DELAY = 5000;
 const REQUEST_TIMEOUT = 10000;
 
 export default {
-  name: 'IDEComponent',
-  
-  data() {
-    return {
-      editor: null,
-      selectedLanguage: 'javascript',
-      output: null,
-      questions: [],
-      loading: true,
-      loadingMessage: 'Loading questions...',
-      error: null,
-      decodedTopic: '',
-      userDifficulty: 'basic',
-      isRunning: false,
-      retryCount: 0,
-      retryInProgress: false,
-      remainingRetries: MAX_RETRIES,
-      cancelTokenSource: null,
-      defaultCode: {
-        javascript: '// Write your JavaScript code here\n\n',
-        python: '# Write your Python code here\n\n',
-        cpp: '// Write your C++ code here\n\n',
-        java: '// Write your Java code here\n\n'
-      }
-    };
-  },
+name: 'IDEComponent',
 
-  created() {
-    this.decodedTopic = decodeURIComponent(this.$route.params.topic || '');
-    this.loadPreferences();
-    this.cancelTokenSource = axios.CancelToken.source();
-  },
-
-  async mounted() {
-    try {
-      await this.initializeEditor();
-      await this.fetchQuestions();
-    } catch (error) {
-      this.handleError(error, 'Failed to initialize the IDE');
+data() {
+  return {
+    editor: null,
+    selectedLanguage: 'javascript',
+    output: null,
+    questions: [],
+    loading: true,
+    loadingMessage: 'Loading questions...',
+    error: null,
+    decodedTopic: '',
+    userDifficulty: 'basic',
+    isRunning: false,
+    retryCount: 0,
+    retryInProgress: false,
+    remainingRetries: MAX_RETRIES,
+    cancelTokenSource: null,
+    defaultCode: {
+      javascript: '// Write your JavaScript code here\n\n',
+      python: '# Write your Python code here\n\n',
+      cpp: '// Write your C++ code here\n\n',
+      java: '// Write your Java code here\n\n'
     }
-  },
+  };
+},
 
-  beforeUnmount() {
-    this.cleanup();
-  },
+created() {
+  this.decodedTopic = decodeURIComponent(this.$route.params.topic || '');
+  this.loadPreferences();
+  this.cancelTokenSource = axios.CancelToken.source();
+},
 
-  watch: {
-    selectedLanguage(newLanguage) {
-      if (this.editor) {
-        monaco.editor.setModelLanguage(this.editor.getModel(), newLanguage);
-        // Fixed: Use Object.prototype.hasOwnProperty.call instead of direct method access
-        this.editor.setValue(Object.prototype.hasOwnProperty.call(this.defaultCode, newLanguage) 
-          ? this.defaultCode[newLanguage] 
-          : '');
-        this.savePreferences();
-      }
-    }
-  },
+async mounted() {
+  try {
+    await this.initializeEditor();
+    await this.fetchQuestions();
+  } catch (error) {
+    this.handleError(error, 'Failed to initialize the IDE');
+  }
+},
 
-  methods: {
-    cleanup() {
-      if (this.editor) {
-        this.editor.dispose();
-      }
-      if (this.cancelTokenSource) {
-        this.cancelTokenSource.cancel('Component unmounted');
-      }
-    },
+beforeUnmount() {
+  this.cleanup();
+},
 
-    loadPreferences() {
-      try {
-        const savedLanguage = localStorage.getItem('preferredLanguage');
-        const savedDifficulty = localStorage.getItem('experienceLevel');
-        
-        if (savedLanguage && Object.prototype.hasOwnProperty.call(this.defaultCode, savedLanguage)) {
-          this.selectedLanguage = savedLanguage;
-        }
-        
-        if (savedDifficulty) {
-          this.userDifficulty = savedDifficulty;
-        }
-      } catch (error) {
-        console.warn('Failed to load preferences:', error);
-      }
-    },
-
-    savePreferences() {
-      try {
-        localStorage.setItem('preferredLanguage', this.selectedLanguage);
-        localStorage.setItem('experienceLevel', this.userDifficulty);
-      } catch (error) {
-        console.warn('Failed to save preferences:', error);
-      }
-    },
-
-    async initializeEditor() {
-      await this.$nextTick();
-      
-      try {
-        this.editor = monaco.editor.create(this.$refs.editor, {
-          value: this.defaultCode[this.selectedLanguage],
-          language: this.selectedLanguage,
-          theme: 'vs-dark',
-          automaticLayout: true,
-          minimap: { enabled: false },
-          scrollBeyondLastLine: false,
-          lineNumbers: 'on',
-          roundedSelection: false,
-          scrollbar: {
-            vertical: 'visible',
-            horizontal: 'visible'
-          },
-          fontSize: 14,
-          tabSize: 2,
-          wordWrap: 'on'
-        });
-        
-        this.editor.onDidChangeModelContent(() => {
-          try {
-            const model = this.editor.getModel();
-            if (model) {
-              monaco.editor.setModelMarkers(model, 'owner', []);
-            }
-          } catch (error) {
-            console.warn('Editor warning:', error);
-          }
-        });
-      } catch (error) {
-        throw new Error('Failed to initialize code editor: ' + error.message);
-      }
-    },
-
-    calculateRetryDelay(retryCount) {
-      const baseDelay = Math.min(
-        INITIAL_RETRY_DELAY * Math.pow(2, retryCount),
-        MAX_RETRY_DELAY
+watch: {
+  selectedLanguage(newLanguage) {
+    if (this.editor) {
+      monaco.editor.setModelLanguage(this.editor.getModel(), newLanguage);
+      this.editor.setValue(
+        Object.prototype.hasOwnProperty.call(this.defaultCode, newLanguage)
+          ? this.defaultCode[newLanguage]
+          : ''
       );
-      return baseDelay + Math.random() * 1000;
-    },
+      this.savePreferences();
+    }
+  }
+},
 
-    // Fixed: Removed unused parameter
-    async fetchQuestionsWithTimeout() {
-      if (this.cancelTokenSource) {
-        this.cancelTokenSource.cancel('New request initiated');
+methods: {
+  cleanup() {
+    if (this.editor) {
+      this.editor.dispose();
+    }
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel('Component unmounted');
+    }
+  },
+
+  loadPreferences() {
+    try {
+      const savedLanguage = localStorage.getItem('preferredLanguage');
+      const savedDifficulty = localStorage.getItem('experienceLevel');
+      
+      if (savedLanguage && Object.prototype.hasOwnProperty.call(this.defaultCode, savedLanguage)) {
+        this.selectedLanguage = savedLanguage;
       }
-      this.cancelTokenSource = axios.CancelToken.source();
-
-      try {
-        const response = await axios.post(
-          ${API_BASE_URL}/generate-questions,
-          {
-            topic: this.decodedTopic,
-            difficulty: this.userDifficulty
-          },
-          {
-            timeout: REQUEST_TIMEOUT,
-            cancelToken: this.cancelTokenSource.token,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        if (!response.data?.questions || !Array.isArray(response.data.questions)) {
-          throw new Error('Invalid response format');
-        }
-
-        return response.data.questions;
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          throw new Error('Request cancelled');
-        }
-        
-        if (error.code === 'ECONNABORTED') {
-          throw new Error('Request timed out');
-        }
-
-        const status = error.response?.status;
-        if (status === 500) {
-          throw new Error('Server error occurred');
-        }
-
-        throw error;
+      
+      if (savedDifficulty) {
+        this.userDifficulty = savedDifficulty;
       }
-    },
+    } catch (error) {
+      console.warn('Failed to load preferences:', error);
+    }
+  },
 
-    async fetchQuestions() {
-      this.loading = true;
-      this.error = null;
-      this.retryInProgress = false;
-      this.remainingRetries = MAX_RETRIES;
-      this.retryCount = 0;
+  savePreferences() {
+    try {
+      localStorage.setItem('preferredLanguage', this.selectedLanguage);
+      localStorage.setItem('experienceLevel', this.userDifficulty);
+    } catch (error) {
+      console.warn('Failed to save preferences:', error);
+    }
+  },
 
-      while (this.retryCount < MAX_RETRIES) {
+  async initializeEditor() {
+    await this.$nextTick();
+    
+    try {
+      this.editor = monaco.editor.create(this.$refs.editor, {
+        value: this.defaultCode[this.selectedLanguage],
+        language: this.selectedLanguage,
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        lineNumbers: 'on',
+        roundedSelection: false,
+        scrollbar: {
+          vertical: 'visible',
+          horizontal: 'visible'
+        },
+        fontSize: 14,
+        tabSize: 2,
+        wordWrap: 'on'
+      });
+      
+      this.editor.onDidChangeModelContent(() => {
         try {
-          this.questions = await this.fetchQuestionsWithTimeout();
-          this.loading = false;
-          return;
+          const model = this.editor.getModel();
+          if (model) {
+            monaco.editor.setModelMarkers(model, 'owner', []);
+          }
         } catch (error) {
-          this.retryCount++;
-          this.remainingRetries = MAX_RETRIES - this.retryCount;
+          console.warn('Editor warning:', error);
+        }
+      });
+    } catch (error) {
+      throw new Error('Failed to initialize code editor: ' + error.message);
+    }
+  },
 
-          if (this.retryCount < MAX_RETRIES) {
-            this.retryInProgress = true;
-            this.loadingMessage = Attempt ${this.retryCount + 1} of ${MAX_RETRIES}...;
-            await new Promise(resolve => 
-              setTimeout(resolve, this.calculateRetryDelay(this.retryCount))
-            );
-          } else {
-            this.handleError(error);
+  calculateRetryDelay(retryCount) {
+    const baseDelay = Math.min(
+      INITIAL_RETRY_DELAY * Math.pow(2, retryCount),
+      MAX_RETRY_DELAY
+    );
+    return baseDelay + Math.random() * 1000;
+  },
+
+  async fetchQuestionsWithTimeout() {
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel('New request initiated');
+    }
+    this.cancelTokenSource = axios.CancelToken.source();
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/generate-questions`,
+        {
+          topic: this.decodedTopic,
+          difficulty: this.userDifficulty
+        },
+        {
+          timeout: REQUEST_TIMEOUT,
+          cancelToken: this.cancelTokenSource.token,
+          headers: {
+            'Content-Type': 'application/json'
           }
         }
-      }
-    },
+      );
 
-    handleError(error, defaultMessage = '') {
-      let errorMessage = defaultMessage || 'An unexpected error occurred';
-      
-      if (error.message.includes('timeout')) {
-        errorMessage = 'The request timed out. Please check your connection and try again.';
-      } else if (error.message.includes('Network Error')) {
-        errorMessage = 'Cannot connect to the server. Please check your internet connection.';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'The server encountered an error. Please try again later.';
+      if (!response.data?.questions || !Array.isArray(response.data.questions)) {
+        throw new Error('Invalid response format');
       }
 
-      this.error = errorMessage;
-      this.loading = false;
-      this.retryInProgress = false;
-      console.error('Error details:', error);
-    },
-
-    async retryFetch() {
-      if (this.retryInProgress) return;
-      this.retryCount = 0;
-      this.error = null;
-      await this.fetchQuestions();
-    },
-
-    async runCode() {
-      if (!this.editor || this.isRunning) return;
+      return response.data.questions;
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        throw new Error('Request cancelled');
+      }
       
-      const code = this.editor.getValue();
-      this.isRunning = true;
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Request timed out');
+      }
+
+      const status = error.response?.status;
+      if (status === 500) {
+        throw new Error('Server error occurred');
+      }
+
+      throw error;
+    }
+  },
+
+  async fetchQuestions() {
+    this.loading = true;
+    this.error = null;
+    this.retryInProgress = false;
+    this.remainingRetries = MAX_RETRIES;
+    this.retryCount = 0;
+
+    while (this.retryCount < MAX_RETRIES) {
+      try {
+        this.questions = await this.fetchQuestionsWithTimeout();
+        this.loading = false;
+        return;
+      } catch (error) {
+        this.retryCount++;
+        this.remainingRetries = MAX_RETRIES - this.retryCount;
+
+        if (this.retryCount < MAX_RETRIES) {
+          this.retryInProgress = true;
+          this.loadingMessage = `Attempt ${this.retryCount + 1} of ${MAX_RETRIES}...`;
+          await new Promise(resolve => 
+            setTimeout(resolve, this.calculateRetryDelay(this.retryCount))
+          );
+        } else {
+          this.handleError(error);
+        }
+      }
+    }
+  },
+
+  handleError(error, defaultMessage = '') {
+    let errorMessage = defaultMessage || 'An unexpected error occurred';
+    
+    if (error.message.includes('timeout')) {
+      errorMessage = 'The request timed out. Please check your connection and try again.';
+    } else if (error.message.includes('Network Error')) {
+      errorMessage = 'Cannot connect to the server. Please check your internet connection.';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'The server encountered an error. Please try again later.';
+    }
+
+    this.error = errorMessage;
+    this.loading = false;
+    this.retryInProgress = false;
+    console.error('Error details:', error);
+  },
+
+  async retryFetch() {
+    if (this.retryInProgress) return;
+    this.retryCount = 0;
+    this.error = null;
+    await this.fetchQuestions();
+  },
+
+  async runCode() {
+    if (!this.editor || this.isRunning) return;
+    
+    const code = this.editor.getValue();
+    this.isRunning = true;
+    this.output = null;
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/execute-code`, {
+        code,
+        language: this.selectedLanguage
+      }, {
+        timeout: REQUEST_TIMEOUT
+      });
+      
+      this.output = response.data.output;
+    } catch (error) {
+      this.output = `Error executing code: ${error.response?.data?.message || error.message}`;
+    } finally {
+      this.isRunning = false;
+    }
+  },
+
+  resetEditor() {
+    if (this.editor) {
+      this.editor.setValue(this.defaultCode[this.selectedLanguage]);
       this.output = null;
       
-      try {
-        const response = await axios.post(${API_BASE_URL}/execute-code, {
-          code,
-          language: this.selectedLanguage
-        }, {
-          timeout: REQUEST_TIMEOUT
-        });
-        
-        this.output = response.data.output;
-      } catch (error) {
-        this.output = Error executing code: ${error.response?.data?.message || error.message};
-      } finally {
-        this.isRunning = false;
-      }
-    },
-
-    resetEditor() {
-      if (this.editor) {
-        this.editor.setValue(this.defaultCode[this.selectedLanguage]);
-        this.output = null;
-        
-        const model = this.editor.getModel();
-        if (model) {
-          monaco.editor.setModelMarkers(model, 'owner', []);
-        }
+      const model = this.editor.getModel();
+      if (model) {
+        monaco.editor.setModelMarkers(model, 'owner', []);
       }
     }
   }
+}
 };
 </script>
 
