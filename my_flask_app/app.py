@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, session, redirect, request, jsonify
 import mysql.connector
 from config import Config
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_mail import Mail, Message
+import secrets
+import datetime
 import random
 import string
 import traceback
@@ -27,10 +29,185 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
+app.config['SECRET_KEY'] = secrets.token_hex(16)
 
 # Initialize Flask-Mail
 mail = Mail(app)
 
+# initiate a class for all database functions
+class DatabaseManager:
+    def __init__(self):
+        """
+        Initialize database connection with robust configuration
+        Recommend using environment variables for sensitive connection details
+        """
+        self.connection = mysql.connector.connect(
+            host=os.getenv('MYSQL_HOST', 'localhost'),
+            user=os.getenv('MYSQL_USER', 'your_username'),
+            password=os.getenv('MYSQL_PASSWORD', 'your_password'),
+            database=os.getenv('MYSQL_DATABASE', 'session_management')
+        )
+        self.cursor = self.connection.cursor(dictionary=True)
+
+    def create_tables(self):
+        """
+        Create necessary tables for session management
+        Idempotent design ensures no duplicate table creation
+        """
+        create_user_table = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(80) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL
+        )"""
+
+        create_session_table = """
+        CREATE TABLE IF NOT EXISTS user_sessions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            token VARCHAR(64) UNIQUE NOT NULL,
+            ip_address VARCHAR(45) NOT NULL,
+            user_agent VARCHAR(256) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )"""
+
+        self.cursor.execute(create_user_table)
+        self.cursor.execute(create_session_table)
+        self.connection.commit()
+
+    def create_user_session(self, user_id, ip_address, user_agent):
+        """
+        Create a new user session with advanced management
+        
+        Args:
+            user_id (int): Authenticated user's ID
+            ip_address (str): Client's IP address
+            user_agent (str): Browser/client user agent
+        
+        Returns:
+            str: Generated session token
+        """
+        # First, clean up old sessions
+        cleanup_query = """
+        DELETE FROM user_sessions 
+        WHERE user_id = %s AND 
+        created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)
+        """
+        self.cursor.execute(cleanup_query, (user_id,))
+
+        # Check and limit concurrent sessions
+        count_query = "SELECT COUNT(*) as session_count FROM user_sessions WHERE user_id = %s"
+        self.cursor.execute(count_query, (user_id,))
+        session_count = self.cursor.fetchone()['session_count']
+
+        if session_count >= 2:
+            # Remove oldest session if limit exceeded
+            remove_oldest = """
+            DELETE FROM user_sessions 
+            WHERE user_id = %s 
+            ORDER BY created_at ASC 
+            LIMIT 1
+            """
+            self.cursor.execute(remove_oldest, (user_id,))
+
+        # Generate secure token
+        token = secrets.token_urlsafe(32)
+
+        # Insert new session
+        insert_query = """
+        INSERT INTO user_sessions 
+        (user_id, token, ip_address, user_agent) 
+        VALUES (%s, %s, %s, %s)
+        """
+        self.cursor.execute(insert_query, (user_id, token, ip_address, user_agent))
+        self.connection.commit()
+
+        return token
+
+    def validate_session(self, token):
+        """
+        Comprehensive session validation
+        
+        Args:
+            token (str): Session authentication token
+        
+        Returns:
+            dict: Validation result with user details
+        """
+        query = """
+        SELECT u.id, u.username, s.created_at 
+        FROM user_sessions s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.token = %s AND 
+        s.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+        """
+        
+        self.cursor.execute(query, (token,))
+        session_data = self.cursor.fetchone()
+
+        if not session_data:
+            return {'valid': False, 'reason': 'Session not found or expired'}
+
+        # Update last activity
+        update_query = """
+        UPDATE user_sessions 
+        SET last_activity = CURRENT_TIMESTAMP 
+        WHERE token = %s
+        """
+        self.cursor.execute(update_query, (token,))
+        self.connection.commit()
+
+        return {
+            'valid': True, 
+            'user_id': session_data['id'],
+            'username': session_data['username']
+        }
+
+    def invalidate_session(self, token):
+        """
+        Explicitly terminate a user session
+        
+        Args:
+            token (str): Session token to invalidate
+        """
+        delete_query = "DELETE FROM user_sessions WHERE token = %s"
+        self.cursor.execute(delete_query, (token,))
+        self.connection.commit()
+
+    def close_connection(self):
+        """Properly close database connections"""
+        self.cursor.close()
+        self.connection.close()
+
+db_manager = DatabaseManager()
+db_manager.create_tables()
+@app.route('/login', methods=['POST'])
+def login():
+    """
+    Authenticate user and create session
+    Note: Assumes password validation is already handled
+    """
+    username = request.json.get('username')
+    user_id = request.json.get('user_id')  # Assuming pre-validated user_id
+    
+    try:
+        token = db_manager.create_user_session(
+            user_id, 
+            request.remote_addr, 
+            str(request.user_agent)
+        )
+        
+        return jsonify({
+            'success': True, 
+            'token': token
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'message': str(e)
+        }), 500
 
 # Initialize MySQL connection
 def get_db_connection():
@@ -42,72 +219,29 @@ def get_db_connection():
     )
     return connection
 
-def check_ollama_installation():
-    """Check if Ollama is properly installed and running"""
-    try:
-        # First, check if Ollama is installed
-        if sys.platform == "win32":
-            ollama_path = "ollama.exe"
-        else:
-            ollama_path = "ollama"
-            
-        # Try to find ollama in PATH
-        from shutil import which
-        ollama_executable = which(ollama_path)
-        if not ollama_executable:
-            return False, "Ollama executable not found in PATH"
-            
-        # Try to start Ollama service if not running
-        if sys.platform == "win32":
-            start_process = subprocess.run(
-                ["ollama", "serve"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-        else:
-            # For Unix-like systems, check if ollama service is running
-            ps_process = subprocess.run(
-                ["ps", "-ef", "|", "grep", "ollama"],
-                capture_output=True,
-                text=True,
-                shell=True
-            )
-            if "ollama serve" not in ps_process.stdout:
-                start_process = subprocess.run(
-                    ["ollama", "serve", "&"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                    shell=True
-                )
-        
-        # Wait for service to start
-        time.sleep(2)
-        
-        # Check version to verify it's running
-        version_process = subprocess.run(
-            ["ollama", "version"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        
-        if version_process.returncode != 0:
-            return False, f"Ollama service check failed: {version_process.stderr}"
-            
-        return True, "Ollama is running properly"
-        
-    except subprocess.TimeoutExpired:
-        return False, "Timeout while checking Ollama service"
-    except Exception as e:
-        return False, f"Error checking Ollama: {str(e)}"
-    
 # Store verification codes (in a real application, use a more secure method)
 verification_codes = {}
 @app.route('/')
 def index():
     return jsonify({'message': 'Welcome to the Coding Test Platform'})
+
+@app.route('/validate_token', methods=['POST'])
+def validate_token():
+    """Validate user session token"""
+    token = request.json.get('token')
+    result = db_manager.validate_session(token)
+    
+    if result['valid']:
+        return jsonify({
+            'valid': True, 
+            'user_id': result['user_id'],
+            'username': result['username']
+        }), 200
+    
+    return jsonify({
+        'valid': False, 
+        'reason': result.get('reason', 'Invalid session')
+    }), 401
 
 @app.route('/HomePage', methods=['GET'])
 def home():
@@ -323,9 +457,73 @@ def update_preference():
 @app.route('/logout', methods=['POST'])
 def logout():
     try:
+        """Terminate user session"""
+        token = request.json.get('token')
+        db_manager.invalidate_session(token)
         return jsonify({'message': 'Logged out successfully'}), 200
     except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+def check_ollama_installation():
+    """Check if Ollama is properly installed and running"""
+    try:
+        # First, check if Ollama is installed
+        if sys.platform == "win32":
+            ollama_path = "ollama.exe"
+        else:
+            ollama_path = "ollama"
+            
+        # Try to find ollama in PATH
+        from shutil import which
+        ollama_executable = which(ollama_path)
+        if not ollama_executable:
+            return False, "Ollama executable not found in PATH"
+            
+        # Try to start Ollama service if not running
+        if sys.platform == "win32":
+            start_process = subprocess.run(
+                ["ollama", "serve"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+        else:
+            # For Unix-like systems, check if ollama service is running
+            ps_process = subprocess.run(
+                ["ps", "-ef", "|", "grep", "ollama"],
+                capture_output=True,
+                text=True,
+                shell=True
+            )
+            if "ollama serve" not in ps_process.stdout:
+                start_process = subprocess.run(
+                    ["ollama", "serve", "&"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    shell=True
+                )
+        
+        # Wait for service to start
+        time.sleep(2)
+        
+        # Check version to verify it's running
+        version_process = subprocess.run(
+            ["ollama", "version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        if version_process.returncode != 0:
+            return False, f"Ollama service check failed: {version_process.stderr}"
+            
+        return True, "Ollama is running properly"
+        
+    except subprocess.TimeoutExpired:
+        return False, "Timeout while checking Ollama service"
+    except Exception as e:
+        return False, f"Error checking Ollama: {str(e)}"
 
 @app.route('/generate-questions', methods=['POST'])
 def generate_questions():
