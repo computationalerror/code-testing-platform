@@ -1,31 +1,38 @@
 <template>
-  <div class="question-container">
-    <h1>Questions on {{ decodedTopic }}</h1>
-    
-    <!-- Loading State -->
-    <div v-if="loading" class="loading">
-      <p>{{ loadingMessage }}</p>
-      <div class="loading-spinner"></div>
+  <div class="container">
+    <div class="question-container">
+      <h1>Questions on {{ decodedTopic }}</h1>
+      
+      <!-- Loading State -->
+      <div v-if="loading" class="loading">
+        <p>{{ loadingMessage }}</p>
+        <div class="loading-spinner"></div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="error">
+        <p>{{ error }}</p>
+        <button 
+          @click="retryFetch" 
+          class="retry-button" 
+          :disabled="retryInProgress"
+        >
+          {{ retryInProgress ? `Retrying (${remainingRetries} attempts left)...` : 'Retry' }}
+        </button>
+      </div>
+
+      <!-- Questions List -->
+      <ul v-else-if="questions.length" class="questions-list">
+        <li v-for="(question, index) in questions" :key="index">
+          {{ question }}
+        </li>
+      </ul>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="error">
-      <p>{{ error }}</p>
-      <button 
-        @click="retryFetch" 
-        class="retry-button" 
-        :disabled="retryInProgress"
-      >
-        {{ retryInProgress ? `Retrying (${remainingRetries} attempts left)...` : 'Retry' }}
-      </button>
+    <div class="ide-container">
+      <h2>JDoodle Embedded IDE</h2>
+      <div data-pym-src="https://www.jdoodle.com/embed/v1/a6699de47f2e7201"></div>
     </div>
-
-    <!-- Questions List -->
-    <ul v-else-if="questions.length" class="questions-list">
-      <li v-for="(question, index) in questions" :key="index">
-        {{ question }}
-      </li>
-    </ul>
   </div>
 </template>
 
@@ -37,7 +44,7 @@ const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
 
 export default {
-  name: 'QuestionComponent',
+  name: 'QuestionsAndIdeComponent',
 
   data() {
     return {
@@ -62,6 +69,18 @@ export default {
   async mounted() {
     try {
       await this.fetchQuestions();
+      
+      // Dynamically load the JDoodle script
+      const script = document.createElement("script");
+      script.src = "https://www.jdoodle.com/assets/jdoodle-pym.min.js";
+      script.type = "text/javascript";
+      script.onload = () => {
+        console.log("JDoodle script loaded successfully.");
+      };
+      script.onerror = () => {
+        console.error("Failed to load JDoodle script.");
+      };
+      document.body.appendChild(script);
     } catch (error) {
       this.handleError(error);
     }
@@ -158,10 +177,18 @@ export default {
   --danger-color: #f44336;
 }
 
-.question-container {
-  padding: var(--spacing);
+.container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: var(--spacing);
+}
+
+.question-container {
+  margin-bottom: var(--spacing);
+}
+
+.ide-container {
+  width: 100%;
 }
 
 .error {
@@ -236,7 +263,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .question-container {
+  .container {
     padding: calc(var(--spacing) / 2);
   }
 }
