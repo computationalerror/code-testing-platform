@@ -7,8 +7,6 @@ import PreferencePage from '@/components/PreferencePage.vue';
 import LandingPage from '@/components/LandingPage.vue';
 import TopicPage from '@/components/TopicPage.vue';
 import SampleOne from "@/components/SampleOne.vue";
-
-
 const routes = [{
         path: '/',
         name: 'HomePage',
@@ -56,7 +54,7 @@ const routes = [{
         component: SampleOne,
         props: true, // Pass the route parameter as a prop to the component
     },
-];
+]
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
