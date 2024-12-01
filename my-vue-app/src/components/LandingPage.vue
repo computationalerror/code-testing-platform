@@ -59,8 +59,17 @@
 
       <!-- Right panel -->
       <div class="right-panel">
-        <div class="rectangle-4"></div>
-        <div class="rectangle-5"></div>
+        <div class="rectangle-4" @click="goToTopicPage"></div>
+
+        <div class="rectangle-5">
+          <h2>Suggested Topics</h2>
+          <div class="topics-grid">
+    <div v-for="topic in suggestedTopics" :key="topic" class="topic-item">
+      {{ topic }}
+    </div>
+  </div>
+  <button @click="generateRandomTopics">Refresh</button>
+</div>
       </div>
     </div>
   </div>
@@ -89,11 +98,43 @@ export default {
       experienceLevels: ['Beginner', 'Intermediate', 'Expert'],
       userImage,
       userEmail: localStorage.getItem('userEmail') || '',
+      allTopics: [
+        // Basic Data Structures
+        "Arrays", "Strings", "Linked Lists", "Stacks", "Queues",
+        // Advanced Data Structures
+        "Trees", "Binary Search Trees", "Heaps and Priority Queues", "Tries",
+        "Disjoint Set Union (DSU)", "Fenwick Tree (Binary Indexed Tree)", 
+        "Segment Tree", "Sparse Table",
+        // Graph Algorithms
+        "Graphs", "Breadth-First Search (BFS)", "Depth-First Search (DFS)",
+        "Shortest Path Algorithms (Dijkstra, Bellman-Ford)",
+        // Problem-Solving Techniques
+        "Sliding Window", "Two Pointers", "Divide and Conquer", 
+        "Backtracking", "Greedy Algorithms", "Recursion",
+        // Sorting and Searching
+        "Sorting Algorithms", "Searching Algorithms",
+        // Mathematics and Number Theory
+        "Bit Manipulation", "Modular Arithmetic", "Combinatorics", 
+        "Number Theory",
+        // Dynamic Programming (DP)
+        "0/1 Knapsack", "Unbounded Knapsack", "Longest Increasing Subsequence (LIS)",
+        "Longest Common Subsequence (LCS)", "Matrix Chain Multiplication",
+        "Coin Change", "Subset Sum", "Partition Problem", "Minimum Path Sum",
+        "Edit Distance", "Rod Cutting", "Palindromic Substrings", 
+        "Egg Dropping Problem", "Fibonacci Variants", "Catalan Numbers",
+        "Shortest Common Supersequence", "DP on Trees", "DP on Graphs", 
+        "State Compression DP", "Bitmasking DP", "Interval DP", 
+        "Digit DP", "Probability DP",
+        // Game Theory and Miscellaneous
+        "Matrix Manipulation", "Game Theory",
+      ],
+      suggestedTopics: [],
     };
   },
   mounted() {
     console.log('Initial preferences:', this.preferences);
     this.fetchPreferences();
+    this.generateRandomTopics();
   },
   methods: {
     toggleDropdown() {
@@ -116,7 +157,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.get(`http://127.0.0.1:5000/get_preferences?email=${this.userEmail}`);
+        const response = await axios.get(`/get_preferences?email=${this.userEmail}`);
         console.log('Fetched preferences:', response.data);
         if (response.data && response.data.length > 0) {
           const fetchedPreferences = response.data[0];
@@ -140,7 +181,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.post('http://127.0.0.1:5000/update_preference', {
+        const response = await axios.post('/update_preference', {
           email: this.userEmail,
           [key]: value
         });
@@ -158,7 +199,7 @@ export default {
     async handleLogout() {
       try {
         // Call backend logout endpoint if needed
-        await axios.post('http://127.0.0.1:5000/logout');
+        await axios.post('/logout');
         
         // Clear all relevant items from localStorage
         localStorage.removeItem('userEmail');
@@ -177,6 +218,14 @@ export default {
         localStorage.clear();
         this.router.push('/');
       }
+    },
+    generateRandomTopics() {
+      // Shuffle and select 4 topics
+      const shuffled = [...this.allTopics].sort(() => 0.5 - Math.random());
+      this.suggestedTopics = shuffled.slice(0, 4);
+    },
+    goToTopicPage() {
+      this.$router.push('/topicpage');
     },
   },
 };
@@ -275,10 +324,50 @@ export default {
 }
 
 .rectangle-5 {
-  width: 100%;
-  height: 418px;
-  background-image: url("@/assets/1.png");
+  width: 95%;
+  height: auto;
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
 }
+
+.rectangle-5 h2 {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns */
+  gap: 15px; /* Space between items */
+  justify-content: center;
+}
+
+.topic-item {
+  font-size: 1.2rem;
+  color: #004d40;
+  padding: 10px;
+  background-color: #c6f7cc;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.rectangle-5 button {
+  font-size: 1rem;
+  margin-top: 15px;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  background-color: rgb(94, 135, 95);
+  cursor: pointer;
+}
+
+.rectangle-5 button:hover {
+  background-color: rgb(133, 206, 133);
+}
+
 
 .user-profile {
   position: relative;

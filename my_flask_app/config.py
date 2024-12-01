@@ -1,7 +1,7 @@
 class Config:
     MYSQL_HOST = 'localhost'
     MYSQL_USER = 'root'
-    MYSQL_PASSWORD = 'shrav123'
+    MYSQL_PASSWORD = 'Sharayu@151569'
     MYSQL_DB = 'project101'
     MAIL_SERVER = 'smtp.gmail.com'  # Or your SMTP server
     MAIL_PORT = 587

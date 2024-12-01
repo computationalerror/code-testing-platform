@@ -7,24 +7,105 @@ from flask_mail import Mail, Message
 import random
 import string
 import traceback
+from flask_cors import cross_origin
+import requests
+import logging
+import subprocess
+import sys
+import time
+import os
+from shutil import which
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('app.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+
+Hugging_API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-1B"  # You can change the model
+API_TOKEN = "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"
+HEADERS = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
+
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config)
 
 # Initialize Flask-Mail
 mail = Mail(app)
 
+JDoodle_API_URL = "https://api.jdoodle.com/v1/execute"
+CLIENT_ID = "317b1d2295d5d1fea1edd77acefe7f8a"
+CLIENT_SECRET = "1533326c028675c24eda0623d61c58f02454c6f82da10f7e83bd4f5a1706ce71"
+
+
 
 # Initialize MySQL connection
 def get_db_connection():
     connection = mysql.connector.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        password=app.config['MYSQL_PASSWORD'],
-        database=app.config['MYSQL_DB']
+        host="localhost",
+        user="root",
+        password="Sharayu@151569",
+        database="project101",
+        auth_plugin='mysql_native_password'
     )
     return connection
+
+def check_ollama_installation():
+    """Check if Ollama is installed and running."""
+    try:
+        process = subprocess.run(
+            ["ollama", "version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        return True, process.stdout
+    except subprocess.CalledProcessError as e:
+        return False, f"Ollama not properly installed: {str(e)}"
+    except FileNotFoundError:
+        return False, "Ollama is not installed"
+    except Exception as e:
+        return False, f"Error checking Ollama: {str(e)}"
+    
+def query_huggingface(prompt, timeout=30):
+    """Send a query to Hugging Face Inference API."""
+    try:
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_length": 500,  # Adjust based on your needs
+                "temperature": 0.7,  # Adjust for creativity vs consistency
+                "top_p": 0.9,
+                "do_sample": True
+            }
+        }
+        
+        response = requests.post(
+            Hugging_API_URL,
+            headers=HEADERS,
+            json=payload,
+            timeout=timeout
+        )
+        
+        response.raise_for_status()  # Raise exception for bad status codes
+        return response.json(), None
+        
+    except requests.exceptions.Timeout:
+        return None, "API request timed out"
+    except requests.exceptions.RequestException as e:
+        return None, f"API request failed: {str(e)}"
+    except Exception as e:
+        return None, f"Unexpected error: {str(e)}"
 
 
 # Store verification codes (in a real application, use a more secure method)
@@ -47,6 +128,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/RegisterPage', methods=['POST'])
+@cross_origin(origins="http://localhost:8080")
 def register():
     data = request.json
     full_name = data['full_name']
@@ -250,6 +332,94 @@ def logout():
         return jsonify({'message': 'Logged out successfully'}), 200
     except Exception as e:
             return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/generate-questions', methods=['POST'])
+def generate_questions():
+    try:
+        # Log incoming request
+        logger.debug(f"Received request with data: {request.data}")
+
+        # Validate request data
+        data = request.json
+        if not data:
+            logger.error("No data provided in request")
+            return jsonify({"error": "No data provided"}), 400
+
+        topic = data.get('topic')
+        difficulty = data.get('difficulty', 'basic')
+
+        if not topic:
+            logger.error("No topic provided in request")
+            return jsonify({"error": "Topic is required"}), 400
+
+        # Generate the prompt
+        prompt = f"Generate 3 {difficulty} level strictly programming questions about {topic}. Format each question on a new line."
+        logger.debug(f"Generated prompt: {prompt}")
+
+        # Query Hugging Face API
+        response, error = query_huggingface(prompt)
+        
+        if error:
+            logger.error(f"API Error: {error}")
+            return jsonify({"error": error}), 500
+
+        # Process the output - adjust based on the actual API response format
+        try:
+            # The exact processing will depend on the model's output format
+            # This is a basic example - adjust based on actual response structure
+            output_text = response[0].get('generated_text', '')
+            
+            # Split into questions and clean up
+            questions = [
+                q.strip() for q in output_text.strip().split('\n')
+                if q.strip() and len(q.strip()) > 10  # Basic validation of questions
+            ]
+
+            # Validate questions
+            if not questions:
+                logger.error("No valid questions generated")
+                return jsonify({"error": "No valid questions generated"}), 500
+
+            # Limit to 3 questions and format them
+            final_questions = questions[:3]
+            logger.debug(f"Generated questions: {final_questions}")
+
+            return jsonify({
+                "questions": final_questions,
+                "count": len(final_questions)
+            }), 200
+
+        except Exception as e:
+            logger.error(f"Error processing API response: {str(e)}")
+            return jsonify({"error": f"Error processing response: {str(e)}"}), 500
+
+    except Exception as e:
+        logger.error(f"Server error: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+    
+
+@app.route('/execute', methods=['POST'])
+def execute_code():
+    try:
+        data = request.json
+        payload = {
+            "clientId": CLIENT_ID,
+            "clientSecret": CLIENT_SECRET,
+            "script": data["script"],
+            "language": data.get("language", "python3"),
+            "versionIndex": data.get("versionIndex", "3"),
+        }
+        response = requests.post(JDoodle_API_URL, json=payload)
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    try:
+        #subprocess.run(["ollama", "pull", "llama3.2:1b"], check=True)
+        logger.info("Successfully pulled Ollama model")
+        app.run(debug=True)
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}")

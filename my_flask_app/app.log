@@ -1,0 +1,187 @@
+2024-11-30 12:05:15,570 - __main__ - ERROR - Failed to start server: [WinError 2] The system cannot find the file specified
+2024-11-30 12:14:49,947 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:14:50,009 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:14:50,009 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:14:50,025 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2024-11-30 12:14:50,766 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:14:50,806 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:14:50,817 - werkzeug - INFO -  * Debugger PIN: 778-024-086
+2024-11-30 12:17:28,762 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:17:28,839 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:17:28,839 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:17:28,839 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:17:29,922 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:17:29,962 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:17:29,970 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:17:56,460 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:17:56] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:18:13,727 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:18:13] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:18:13,847 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:18:13] "[31m[1mPOST /LoginPage HTTP/1.1[0m" 401 -
+2024-11-30 12:18:17,428 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:18:17] "[31m[1mPOST /LoginPage HTTP/1.1[0m" 401 -
+2024-11-30 12:18:46,995 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:18:46] "OPTIONS /RegisterPage HTTP/1.1" 200 -
+2024-11-30 12:18:47,239 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:18:47] "[35m[1mPOST /RegisterPage HTTP/1.1[0m" 201 -
+2024-11-30 12:19:01,957 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:01] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:19:02,201 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:02] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:19:06,387 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:06] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:19:06,410 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:06] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:19:06,455 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:06] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:19:19,324 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:19] "OPTIONS /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:19,355 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:19] "POST /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:24,357 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:24] "POST /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:25,105 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:25] "OPTIONS /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:25,119 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:25] "POST /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:25,323 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:25] "POST /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:30,175 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:30] "OPTIONS /update_preference HTTP/1.1" 200 -
+2024-11-30 12:19:30,207 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:19:30] "POST /update_preference HTTP/1.1" 200 -
+2024-11-30 12:26:36,067 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:26:36,127 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:26:36,127 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:26:36,136 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:26:37,271 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:26:37,313 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:26:37,319 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:27:16,244 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:16] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:27:31,430 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:31] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:27:31,690 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:31] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:27:36,119 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:36] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:27:36,151 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:36] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:27:36,193 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:36] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:27:53,705 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:27:53] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:30:08,484 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:30:08] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:31:23,721 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:31:23,777 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:31:23,777 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:31:23,777 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:31:24,775 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:31:24,810 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:31:24,814 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:31:43,493 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:31:43] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:32:02,858 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:32:02] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:32:03,110 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:32:03] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:32:06,896 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:32:06] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:32:06,921 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:32:06] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:32:06,965 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:32:06] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:38:20,072 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:38:20,136 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:38:20,140 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:38:20,140 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:38:21,292 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:38:21,323 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:38:21,331 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:38:39,544 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:38:39] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:38:57,966 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:38:57] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:38:58,216 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:38:58] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:39:01,981 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:01] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:39:02,005 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:02] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:39:02,054 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:02] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:39:06,678 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:06] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:39:06,705 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:06,705 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:06,713 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:08,042 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:08,050 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:08,051 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:08] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:39:09,064 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:09,064 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:09,069 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:10,011 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:10,011 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:10,018 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:10] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:39:12,026 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:12] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:39:12,033 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:12,033 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:12,038 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:13,150 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:13,152 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:13,152 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:13] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:39:21,919 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:21] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:39:21,921 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:21,926 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:21,927 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:22,836 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:22,836 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:22,836 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:22] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:39:23,848 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:23,848 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:23,856 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:24,823 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:24,823 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:24,823 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:24] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:39:26,837 - __main__ - DEBUG - Received request with data: b'{"topic":"Strings","difficulty":"intermediate"}'
+2024-11-30 12:39:26,837 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Strings. Format each question on a new line.
+2024-11-30 12:39:26,837 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:39:28,010 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-2-7b HTTP/11" 503 82
+2024-11-30 12:39:28,011 - __main__ - ERROR - API Error: API request failed: 503 Server Error: Service Unavailable for url: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b
+2024-11-30 12:39:28,011 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:39:28] "[35m[1mPOST /generate-questions HTTP/1.1[0m" 500 -
+2024-11-30 12:44:36,984 - werkzeug - INFO -  * Detected change in 'E:\\frontend_ai_test_platform\\code-testing-platform\\my_flask_app\\app.py', reloading
+2024-11-30 12:44:37,150 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:44:38,491 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:44:38,545 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:44:38,553 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:45:15,442 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:45:15,510 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:45:15,510 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:45:15,510 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:45:16,622 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:45:16,650 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:45:16,656 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:45:35,320 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:35] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:45:54,689 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:54] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:45:54,959 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:54] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:45:58,918 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:58] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:45:58,948 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:58] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:45:58,992 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:45:58] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:46:01,464 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:46:01] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:46:01,464 - __main__ - DEBUG - Received request with data: b'{"topic":"Stacks","difficulty":"intermediate"}'
+2024-11-30 12:46:01,464 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Stacks. Format each question on a new line.
+2024-11-30 12:46:01,483 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:46:05,390 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-3.2-1B HTTP/11" 200 None
+2024-11-30 12:46:05,390 - __main__ - DEBUG - Generated questions: ['Generate 3 intermediate level strictly programming questions about Stacks. Format each question on a new line. Include a set of sample data to test your code against. Sample data can be provided as a separate file.']
+2024-11-30 12:46:05,397 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:46:05] "POST /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:47:32,656 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:47:32] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:47:32,667 - __main__ - DEBUG - Received request with data: b'{"topic":"Queues","difficulty":"intermediate"}'
+2024-11-30 12:47:32,667 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Queues. Format each question on a new line.
+2024-11-30 12:47:32,673 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:47:38,467 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-3.2-1B HTTP/11" 200 None
+2024-11-30 12:47:38,467 - __main__ - DEBUG - Generated questions: ['Generate 3 intermediate level strictly programming questions about Queues. Format each question on a new line. Include a question number (1,2,3, etc) and answer in the first line of your answer. Make sure to write your answers on a separate sheet of paper.']
+2024-11-30 12:47:38,475 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:47:38] "POST /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:48:33,102 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:48:33] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:48:33,111 - __main__ - DEBUG - Received request with data: b'{"topic":"Tries","difficulty":"intermediate"}'
+2024-11-30 12:48:33,113 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Tries. Format each question on a new line.
+2024-11-30 12:48:33,114 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:48:46,150 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-3.2-1B HTTP/11" 200 None
+2024-11-30 12:48:46,150 - __main__ - DEBUG - Generated questions: ['Generate 3 intermediate level strictly programming questions about Tries. Format each question on a new line. Please use the following structure: A) Set B) If-else C) For-loop D) Array E) Map F) List G) Tries', 'C) For-loop', '1) A Set is a collection of unique elements. It is also known as a bag. A Set contains no duplicate elements. A Set can be created using the set() function']
+2024-11-30 12:48:46,150 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:48:46] "POST /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:50:47,053 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:50:47] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:50:47,059 - __main__ - DEBUG - Received request with data: b'{"topic":"Arrays","difficulty":"intermediate"}'
+2024-11-30 12:50:47,059 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Arrays. Format each question on a new line.
+2024-11-30 12:50:47,070 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:50:49,740 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-3.2-1B HTTP/11" 200 None
+2024-11-30 12:50:49,740 - __main__ - DEBUG - Generated questions: ['Generate 3 intermediate level strictly programming questions about Arrays. Format each question on a new line. Your answer should be a 2D array.']
+2024-11-30 12:50:49,740 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:50:49] "POST /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:53:11,908 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:53:11,971 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-11-30 12:53:11,979 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-11-30 12:53:11,981 - werkzeug - INFO -  * Restarting with stat
+2024-11-30 12:53:13,260 - __main__ - INFO - Successfully pulled Ollama model
+2024-11-30 12:53:13,313 - werkzeug - WARNING -  * Debugger is active!
+2024-11-30 12:53:13,324 - werkzeug - INFO -  * Debugger PIN: 118-861-893
+2024-11-30 12:53:29,467 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:29] "GET /HomePage HTTP/1.1" 200 -
+2024-11-30 12:53:43,713 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:43] "OPTIONS /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:53:43,956 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:43] "POST /LoginPage HTTP/1.1" 200 -
+2024-11-30 12:53:47,854 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:47] "OPTIONS /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:53:47,881 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:47] "POST /save_preferences HTTP/1.1" 200 -
+2024-11-30 12:53:47,927 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:53:47] "GET /get_preferences?email=yuvraj.22210320@viit.ac.in HTTP/1.1" 200 -
+2024-11-30 12:54:02,926 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:54:02] "OPTIONS /generate-questions HTTP/1.1" 200 -
+2024-11-30 12:54:02,930 - __main__ - DEBUG - Received request with data: b'{"topic":"Arrays","difficulty":"intermediate"}'
+2024-11-30 12:54:02,930 - __main__ - DEBUG - Generated prompt: Generate 3 intermediate level strictly programming questions about Arrays. Format each question on a new line.
+2024-11-30 12:54:02,947 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api-inference.huggingface.co:443
+2024-11-30 12:54:03,953 - urllib3.connectionpool - DEBUG - https://api-inference.huggingface.co:443 "POST /models/meta-llama/Llama-3.2-1B HTTP/11" 200 167
+2024-11-30 12:54:03,953 - __main__ - DEBUG - Generated questions: ['Generate 3 intermediate level strictly programming questions about Arrays. Format each question on a new line. Your answer should be a 2D array.']
+2024-11-30 12:54:03,953 - werkzeug - INFO - 127.0.0.1 - - [30/Nov/2024 12:54:03] "POST /generate-questions HTTP/1.1" 200 -
