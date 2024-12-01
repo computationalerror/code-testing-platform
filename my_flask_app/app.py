@@ -209,6 +209,11 @@ def login():
             'message': str(e)
         }), 500
 
+JDoodle_API_URL = "https://api.jdoodle.com/v1/execute"
+CLIENT_ID = "317b1d2295d5d1fea1edd77acefe7f8a"
+CLIENT_SECRET = "1533326c028675c24eda0623d61c58f02454c6f82da10f7e83bd4f5a1706ce71"
+
+
 # Initialize MySQL connection
 def get_db_connection():
     connection = mysql.connector.connect(
@@ -219,6 +224,54 @@ def get_db_connection():
     )
     return connection
 
+
+def check_ollama_installation():
+    """Check if Ollama is installed and running."""
+    try:
+        process = subprocess.run(
+            ["ollama", "version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        return True, process.stdout
+    except subprocess.CalledProcessError as e:
+        return False, f"Ollama not properly installed: {str(e)}"
+    except FileNotFoundError:
+        return False, "Ollama is not installed"
+    except Exception as e:
+        return False, f"Error checking Ollama: {str(e)}"
+
+def generate_questions_with_ollama(prompt, timeout=30):
+    """Generate questions using Ollama with proper process management."""
+    try:
+        process = subprocess.Popen(
+            ["ollama", "run", "llama2:7b"],  # Using llama2:7b for better results
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        # Set timeout for the entire process
+        stdout, stderr = process.communicate(input=prompt, timeout=timeout)
+        
+        # Clean up the process
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+        
+        if stderr:
+            logger.error(f"Ollama error output: {stderr}")
+            return None, stderr
+            
+        return stdout, None
+    except Exception as e:
+        return None, str(e)
+   
 # Store verification codes (in a real application, use a more secure method)
 verification_codes = {}
 @app.route('/')
@@ -464,6 +517,7 @@ def logout():
     except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+
 def check_ollama_installation():
     """Check if Ollama is properly installed and running"""
     try:
@@ -524,110 +578,100 @@ def check_ollama_installation():
         return False, "Timeout while checking Ollama service"
     except Exception as e:
         return False, f"Error checking Ollama: {str(e)}"
+# Inside your route function, replace the Ollama process section with:
 
 @app.route('/generate-questions', methods=['POST'])
 def generate_questions():
     try:
         # Log incoming request
         logger.debug(f"Received request with data: {request.data}")
-        
+
         # Validate request data
         data = request.json
         if not data:
             logger.error("No data provided in request")
             return jsonify({"error": "No data provided"}), 400
-        
+
         topic = data.get('topic')
         difficulty = data.get('difficulty', 'basic')
-        
+
         if not topic:
             logger.error("No topic provided in request")
             return jsonify({"error": "Topic is required"}), 400
-        
+
         # Generate the prompt
-        prompt = f"Generate 3 {difficulty} level programming questions about {topic}. Format each question on a new line."
+        prompt = f"Generate 3 {difficulty} level strictly programming questions about {topic}. Format each question on a new line."
         logger.debug(f"Generated prompt: {prompt}")
-        
-        # Check if ollama is installed and running
-        try:
-            version_process = subprocess.run(
-                ["ollama", "version"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            logger.debug(f"Ollama version check output: {version_process.stdout}")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Ollama not properly installed: {str(e)}")
-            return jsonify({"error": "Ollama is not properly installed"}), 500
-        except FileNotFoundError:
-            logger.error("Ollama command not found")
-            return jsonify({"error": "Ollama is not installed"}), 500
-        
+
+        # Check if Ollama is installed and running
+        ollama_installed, ollama_error = check_ollama_installation()
+        if not ollama_installed:
+            logger.error(ollama_error)
+            return jsonify({"error": ollama_error}), 500
+
         # Interact with Ollama
         try:
             # Start the Ollama process
-            process = subprocess.Popen(
-                ["ollama", "run", "llama3.2:1b"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            
-            # Set timeout for the entire process
-            stdout, stderr = process.communicate(input=prompt, timeout=30)
-            
+            stdout, stderr = generate_questions_with_ollama(prompt)
+
             # Log the raw output
             logger.debug(f"Raw stdout: {stdout}")
             logger.debug(f"Raw stderr: {stderr}")
-            
+
             # Check for errors in stderr
             if stderr:
                 logger.error(f"Ollama error output: {stderr}")
                 return jsonify({"error": f"Model error: {stderr}"}), 500
-            
+
             # Process the output
             questions = [
-                q.strip() for q in stdout.strip().split('\n') 
+                q.strip() for q in stdout.strip().split('\n')
                 if q.strip() and len(q.strip()) > 10  # Basic validation of questions
             ]
-            
+
             # Validate questions
             if not questions:
                 logger.error("No valid questions generated")
                 return jsonify({"error": "No valid questions generated"}), 500
-            
+
             # Limit to 3 questions and format them
             final_questions = questions[:3]
             logger.debug(f"Generated questions: {final_questions}")
-            
+
             return jsonify({
                 "questions": final_questions,
                 "count": len(final_questions)
             }), 200
-            
+
         except subprocess.TimeoutExpired as e:
             logger.error(f"Process timeout: {str(e)}")
             return jsonify({"error": "Question generation timed out"}), 504
-            
+
         except Exception as e:
             logger.error(f"Error during Ollama interaction: {str(e)}")
             return jsonify({"error": f"Model error: {str(e)}"}), 500
-            
+
     except Exception as e:
         logger.error(f"Server error: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-# Add a health check endpoint
-@app.route('/health', methods=['GET'])
-def health_check():
+
+    
+@app.route('/execute', methods=['POST'])
+def execute_code():
     try:
-        # Check if Ollama is responsive
-        subprocess.run(["ollama", "version"], capture_output=True, timeout=5)
-        return jsonify({"status": "healthy"}), 200
+        data = request.json
+        payload = {
+            "clientId": CLIENT_ID,
+            "clientSecret": CLIENT_SECRET,
+            "script": data["script"],
+            "language": data.get("language", "python3"),
+            "versionIndex": data.get("versionIndex", "3"),
+        }
+        response = request.post(JDoodle_API_URL, json=payload)
+        return jsonify(response.json())
     except Exception as e:
-        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     try:
