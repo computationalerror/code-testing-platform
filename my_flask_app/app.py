@@ -342,7 +342,7 @@ def generate_questions():
             return jsonify({"error": "Topic is required"}), 400
 
         # Generate the prompt
-        prompt = f"""Generate 3 strictly programmable {difficulty} level questions about {topic}. Provide only the questions, one per line."""
+        prompt = f"""Generate 3 strictly programmable {difficulty} level questions about {topic}.Provide appropriate context required to solve the question. Provide only the questions, one per line."""
 
         logger.debug(f"Generated prompt: {prompt}")
 
@@ -355,24 +355,27 @@ def generate_questions():
 
         # Process the output - adjust based on the actual API response format
         try:
-            # The exact processing will depend on the model's output format
-            # This is a basic example - adjust based on actual response structure
+            # Get the generated text from the response
             output_text = response[0].get('generated_text', '')
             
             # Split into questions and clean up
             questions = [
                 q.strip() for q in output_text.strip().split('\n')
-                if q.strip() and len(q.strip()) > 10  # Basic validation of questions
+                if q.strip() and len(q.strip()) > 20  # Basic validation of questions
             ]
 
-            # Validate questions
+            # Remove the first line of output
+            if questions:
+                questions = questions[1:]
+
+            # Validate questions after removing first line
             if not questions:
-                logger.error("No valid questions generated")
+                logger.error("No valid questions generated after processing")
                 return jsonify({"error": "No valid questions generated"}), 500
 
             # Limit to 3 questions and format them
             final_questions = questions[:3]
-            logger.debug(f"Generated questions: {final_questions}")
+            logger.debug(f"Generated questions (after processing): {final_questions}")
 
             return jsonify({
                 "questions": final_questions,
@@ -386,22 +389,6 @@ def generate_questions():
     except Exception as e:
         logger.error(f"Server error: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
-
-@app.route('/execute', methods=['POST'])
-def execute_code():
-    try:
-        data = request.json
-        payload = {
-            "clientId": CLIENT_ID,
-            "clientSecret": CLIENT_SECRET,
-            "script": data["script"],
-            "language": data.get("language", "python3"),
-            "versionIndex": data.get("versionIndex", "3"),
-        }
-        response = requests.post(JDoodle_API_URL, json=payload)
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     try:
