@@ -285,8 +285,6 @@ def query_huggingface(prompt, timeout=30):
 
         return None, str(e)
    
-        return None, f"Unexpected error: {str(e)}"
-
 # Store verification codes (in a real application, use a more secure method)
 verification_codes = {}
 @app.route('/')
