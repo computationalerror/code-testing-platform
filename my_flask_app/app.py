@@ -13,6 +13,7 @@ import sys
 import time
 import os
 from shutil import which
+import requests
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -23,6 +24,17 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+JDoodle_API_URL = "https://api.jdoodle.com/v1/execute"
+CLIENT_ID = "317b1d2295d5d1fea1edd77acefe7f8a"
+CLIENT_SECRET = "1533326c028675c24eda0623d61c58f02454c6f82da10f7e83bd4f5a1706ce71"
+
+
+Hugging_API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct"  # You can change the model
+API_TOKEN = "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"
+HEADERS = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
 
 app = Flask(__name__)
 CORS(app)
@@ -30,12 +42,6 @@ app.config.from_object(Config)
 
 # Initialize Flask-Mail
 mail = Mail(app)
-
-
-JDoodle_API_URL = "https://api.jdoodle.com/v1/execute"
-CLIENT_ID = "317b1d2295d5d1fea1edd77acefe7f8a"
-CLIENT_SECRET = "1533326c028675c24eda0623d61c58f02454c6f82da10f7e83bd4f5a1706ce71"
-
 
 # Initialize MySQL connection
 def get_db_connection():
@@ -63,37 +69,35 @@ def check_ollama_installation():
         return False, "Ollama is not installed"
     except Exception as e:
         return False, f"Error checking Ollama: {str(e)}"
-
-def generate_questions_with_ollama(prompt, timeout=30):
-    """Generate questions using Ollama with proper process management."""
+def query_huggingface(prompt, timeout=30):
+    """Send a query to Hugging Face Inference API."""
     try:
-        process = subprocess.Popen(
-            ["ollama", "run", "llama2:7b"],  # Using llama2:7b for better results
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_length": 5000,  # Adjust based on your needs
+                "temperature": 0.7,  # Adjust for creativity vs consistency
+                "top_p": 0.9,
+                "do_sample": True
+            }
+        }
+        
+        response = requests.post(
+            Hugging_API_URL,
+            headers=HEADERS,
+            json=payload,
+            timeout=timeout
         )
         
-        # Set timeout for the entire process
-        stdout, stderr = process.communicate(input=prompt, timeout=timeout)
+        response.raise_for_status()  # Raise exception for bad status codes
+        return response.json(), None
         
-        # Clean up the process
-        if process.poll() is None:
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-        
-        if stderr:
-            logger.error(f"Ollama error output: {stderr}")
-            return None, stderr
-            
-        return stdout, None
+    except requests.exceptions.Timeout:
+        return None, "API request timed out"
+    except requests.exceptions.RequestException as e:
+        return None, f"API request failed: {str(e)}"
     except Exception as e:
-        return None, str(e)
-    
+        return None, f"Unexpected error: {str(e)}"
 # Store verification codes (in a real application, use a more secure method)
 verification_codes = {}
 @app.route('/')
@@ -318,8 +322,6 @@ def logout():
     except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-# Inside your route function, replace the Ollama process section with:
-
 @app.route('/generate-questions', methods=['POST'])
 def generate_questions():
     try:
@@ -340,32 +342,26 @@ def generate_questions():
             return jsonify({"error": "Topic is required"}), 400
 
         # Generate the prompt
-        prompt = f"Generate 3 {difficulty} level strictly programming questions about {topic}. Format each question on a new line."
+        prompt = f"""Generate 3 strictly programmable {difficulty} level questions about {topic}. Provide only the questions, one per line."""
+
         logger.debug(f"Generated prompt: {prompt}")
 
-        # Check if Ollama is installed and running
-        ollama_installed, ollama_error = check_ollama_installation()
-        if not ollama_installed:
-            logger.error(ollama_error)
-            return jsonify({"error": ollama_error}), 500
+        # Query Hugging Face API
+        response, error = query_huggingface(prompt)
+        
+        if error:
+            logger.error(f"API Error: {error}")
+            return jsonify({"error": error}), 500
 
-        # Interact with Ollama
+        # Process the output - adjust based on the actual API response format
         try:
-            # Start the Ollama process
-            stdout, stderr = generate_questions_with_ollama(prompt)
-
-            # Log the raw output
-            logger.debug(f"Raw stdout: {stdout}")
-            logger.debug(f"Raw stderr: {stderr}")
-
-            # Check for errors in stderr
-            if stderr:
-                logger.error(f"Ollama error output: {stderr}")
-                return jsonify({"error": f"Model error: {stderr}"}), 500
-
-            # Process the output
+            # The exact processing will depend on the model's output format
+            # This is a basic example - adjust based on actual response structure
+            output_text = response[0].get('generated_text', '')
+            
+            # Split into questions and clean up
             questions = [
-                q.strip() for q in stdout.strip().split('\n')
+                q.strip() for q in output_text.strip().split('\n')
                 if q.strip() and len(q.strip()) > 10  # Basic validation of questions
             ]
 
@@ -383,20 +379,14 @@ def generate_questions():
                 "count": len(final_questions)
             }), 200
 
-        except subprocess.TimeoutExpired as e:
-            logger.error(f"Process timeout: {str(e)}")
-            return jsonify({"error": "Question generation timed out"}), 504
-
         except Exception as e:
-            logger.error(f"Error during Ollama interaction: {str(e)}")
-            return jsonify({"error": f"Model error: {str(e)}"}), 500
+            logger.error(f"Error processing API response: {str(e)}")
+            return jsonify({"error": f"Error processing response: {str(e)}"}), 500
 
     except Exception as e:
         logger.error(f"Server error: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-
-    
 @app.route('/execute', methods=['POST'])
 def execute_code():
     try:
@@ -415,7 +405,7 @@ def execute_code():
 
 if __name__ == '__main__':
     try:
-        subprocess.run(["ollama", "pull", "llama3.2:1b"], check=True)
+        #subprocess.run(["ollama", "pull", "llama3.2:1b"], check=True)
         logger.info("Successfully pulled Ollama model")
         app.run(debug=True)
     except Exception as e:
